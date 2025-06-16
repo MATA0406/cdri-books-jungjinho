@@ -14,13 +14,20 @@ export const globalStyle = css`
   }
 
   body {
-    font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, 
-      'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif;
+    font-family:
+      'Noto Sans KR',
+      -apple-system,
+      BlinkMacSystemFont,
+      'Segoe UI',
+      Roboto,
+      'Helvetica Neue',
+      Arial,
+      sans-serif;
     font-weight: 400;
     font-size: 16px;
     line-height: 1.6;
     background-color: #ffffff;
-    color: #212529;
+    color: #353c49;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -43,7 +50,8 @@ export const globalStyle = css`
     transition: all 0.2s ease;
   }
 
-  input, textarea {
+  input,
+  textarea {
     font-family: inherit;
     font-size: inherit;
     line-height: inherit;
@@ -52,7 +60,8 @@ export const globalStyle = css`
     background: transparent;
   }
 
-  ul, ol {
+  ul,
+  ol {
     list-style: none;
   }
 
