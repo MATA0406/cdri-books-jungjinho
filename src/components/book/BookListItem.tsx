@@ -5,6 +5,7 @@ import { theme } from '../../styles/theme';
 import { Typography } from '../common/Typography';
 import { Icon } from '../common/Icon';
 import type { BookListItemProps } from '../../types/book';
+import { showToast } from '../common';
 
 export const BookListItem: React.FC<BookListItemProps> = ({
   book,
@@ -42,7 +43,14 @@ export const BookListItem: React.FC<BookListItemProps> = ({
           )}
           <button
             css={heartButtonStyles(isExpanded)}
-            onClick={() => onToggleLike(book)}
+            onClick={() => {
+              onToggleLike(book);
+              if (isLiked) {
+                showToast.success('찜한 책에서 제거했습니다.');
+              } else {
+                showToast.success('찜한 책에 추가했습니다.');
+              }
+            }}
             aria-label={isLiked ? '찜하기 해제' : '찜하기'}
           >
             <Icon
