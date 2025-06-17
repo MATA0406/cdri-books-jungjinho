@@ -1,11 +1,17 @@
-import { Layout } from './components/layout';
+/** @jsxImportSource @emotion/react */
+import { Global } from '@emotion/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { globalStyle } from './styles/global';
 import { BookSearchPage } from './pages/BookSearchPage';
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Layout>
+    <QueryClientProvider client={queryClient}>
+      <Global styles={globalStyle} />
       <BookSearchPage />
-    </Layout>
+    </QueryClientProvider>
   );
 }
 

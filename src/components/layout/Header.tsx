@@ -5,9 +5,14 @@ import { Typography } from '../common';
 
 interface HeaderProps {
   activeNav?: 'search' | 'favorites';
+  onNavChange?: (nav: 'search' | 'favorites') => void;
 }
 
-export const Header = ({ activeNav = 'search' }: HeaderProps) => {
+export const Header = ({ activeNav = 'search', onNavChange }: HeaderProps) => {
+  const handleNavClick = (nav: 'search' | 'favorites') => {
+    onNavChange?.(nav);
+  };
+
   return (
     <header css={headerStyles}>
       <div css={headerContentStyles}>
@@ -20,6 +25,7 @@ export const Header = ({ activeNav = 'search' }: HeaderProps) => {
         <nav css={navStyles}>
           <div
             css={activeNav === 'search' ? activeNavItemStyles : navItemStyles}
+            onClick={() => handleNavClick('search')}
           >
             <Typography variant="body1" color="primary">
               도서 검색
@@ -29,6 +35,7 @@ export const Header = ({ activeNav = 'search' }: HeaderProps) => {
             css={
               activeNav === 'favorites' ? activeNavItemStyles : navItemStyles
             }
+            onClick={() => handleNavClick('favorites')}
           >
             <Typography variant="body1" color="primary">
               내가 찜한 책

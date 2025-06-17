@@ -137,7 +137,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
   const showDropdown = isDropdownVisible && hasSearchHistory;
 
   return (
-    <div css={searchBoxContainerStyles} ref={containerRef}>
+    <div ref={containerRef} css={searchBoxContainerStyles}>
       {/* 제목 */}
       <Typography variant="title2" color="black" css={titleStyles}>
         도서 검색
@@ -181,7 +181,7 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
                     { value: '제목', label: '제목' },
                     { value: '저자', label: '저자' },
                     { value: '출판사', label: '출판사' },
-                  ]}
+                  ].filter(option => option.value !== searchType)}
                   value={searchType}
                   onChange={setSearchType}
                 />
@@ -270,11 +270,6 @@ const detailSearchButtonStyles = css`
   background-color: ${theme.colors.white};
   cursor: pointer;
   transition: all ${theme.transitions.fast};
-
-  &:hover {
-    border-color: ${theme.colors.primary};
-    background-color: ${theme.colors.surface};
-  }
 `;
 
 const searchHistoryDropdownStyles = css`
