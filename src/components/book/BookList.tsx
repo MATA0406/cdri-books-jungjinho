@@ -9,7 +9,7 @@ import { useInfiniteBookSearch } from '../../hooks/useInfiniteBookSearch';
 import { useLikedBooks } from '../../hooks/useLikedBooks';
 import type { Book } from '../../types/book';
 
-export const BookList: React.FC<BookListProps> = ({ query }) => {
+export const BookList: React.FC<BookListProps> = ({ query, target }) => {
   const {
     data,
     fetchNextPage,
@@ -18,7 +18,7 @@ export const BookList: React.FC<BookListProps> = ({ query }) => {
     isLoading,
     isError,
     error,
-  } = useInfiniteBookSearch({ query });
+  } = useInfiniteBookSearch({ query, target });
 
   const { toggleLike, isLiked } = useLikedBooks();
   const intersectionRef = useRef<HTMLDivElement>(null);
@@ -140,6 +140,7 @@ export const BookList: React.FC<BookListProps> = ({ query }) => {
 
 interface BookListProps {
   query: string;
+  target?: 'title' | 'person' | 'publisher';
 }
 
 const containerStyles = css`

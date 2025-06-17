@@ -29,7 +29,7 @@ export interface BookSearchParams {
   sort?: 'accuracy' | 'latest';
   page?: number;
   size?: number;
-  target?: 'title' | 'isbn' | 'keyword' | 'publisher';
+  target?: 'title' | 'isbn' | 'person' | 'publisher';
 }
 
 export interface BookListItemProps {

@@ -7,12 +7,19 @@ import { theme } from '../styles/theme';
 
 export const BookSearchPage = () => {
   const [currentQuery, setCurrentQuery] = useState('');
+  const [currentTarget, setCurrentTarget] = useState<
+    'title' | 'person' | 'publisher' | undefined
+  >();
   const [searchValue, setSearchValue] = useState('');
   const [isSearched, setIsSearched] = useState(false);
 
-  const handleSearch = (query: string) => {
+  const handleSearch = (
+    query: string,
+    target?: 'title' | 'person' | 'publisher'
+  ) => {
     const searchQuery = query.trim();
     setCurrentQuery(searchQuery);
+    setCurrentTarget(target);
     setSearchValue(searchQuery);
     setIsSearched(true);
   };
@@ -36,7 +43,7 @@ export const BookSearchPage = () => {
       {/* 컨텐츠 섹션 */}
       {isSearched && (
         <section css={contentSectionStyles}>
-          <BookList query={currentQuery} />
+          <BookList query={currentQuery} target={currentTarget} />
         </section>
       )}
     </div>

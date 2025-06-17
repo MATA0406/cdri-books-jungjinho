@@ -301,8 +301,8 @@ const detailViewButtonStyles = css`
 `;
 
 const arrowIconAnimationStyles = (isExpanded: boolean) => css`
-  transform: ${isExpanded ? 'rotate(180deg)' : 'rotate(360deg)'};
-  transition: transform 0.2s ease-in-out;
+  transform: ${isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'};
+  transition: transform ${theme.transitions.fast};
 `;
 
 const primaryButtonStyles = css`
