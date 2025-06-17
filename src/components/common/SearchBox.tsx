@@ -1,73 +1,174 @@
 /** @jsxImportSource @emotion/react */
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { css } from '@emotion/react';
 import { theme } from '../../styles/theme';
 import { Typography } from './Typography';
 import { Icon } from './Icon';
+import { SearchInput } from './SearchInput';
+import type { SearchInputRef } from './SearchInput';
+import { useSearchHistory } from '../../hooks/useSearchHistory';
 
 interface SearchBoxProps {
   placeholder?: string;
   value?: string;
   onChange?: (value: string) => void;
   onSearch?: (value: string) => void;
-  onDetailSearch?: () => void;
 }
 
-export const SearchBox = ({
+export const SearchBox: React.FC<SearchBoxProps> = ({
   placeholder = '검색어를 입력하세요',
   value = '',
   onChange,
   onSearch,
-  onDetailSearch,
-}: SearchBoxProps) => {
+}) => {
   const [inputValue, setInputValue] = useState(value);
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+  const inputRef = useRef<SearchInputRef>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value;
-    setInputValue(newValue);
-    onChange?.(newValue);
-  };
+  const { searchHistory, addSearchTerm, removeSearchTerm } = useSearchHistory();
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      onSearch?.(inputValue);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const newValue = e.target.value;
+      setInputValue(newValue);
+      onChange?.(newValue);
+    },
+    [onChange]
+  );
+
+  const executeSearch = useCallback(
+    (query: string) => {
+      const trimmedQuery = query.trim();
+      if (trimmedQuery) {
+        addSearchTerm(trimmedQuery);
+        onSearch?.(trimmedQuery);
+      }
+      setIsDropdownVisible(false);
+    },
+    [addSearchTerm, onSearch]
+  );
+
+  const handleKeyPress = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        executeSearch(inputValue);
+      } else if (e.key === 'Escape') {
+        setIsDropdownVisible(false);
+      }
+    },
+    [executeSearch, inputValue]
+  );
+
+  const handleFocus = useCallback(() => {
+    if (searchHistory.length > 0) {
+      setIsDropdownVisible(true);
     }
+  }, [searchHistory.length]);
+
+  const handleBlur = useCallback(() => {
+    // 드롭다운 아이템 클릭을 위한 지연
+    setTimeout(() => setIsDropdownVisible(false), 150);
+  }, []);
+
+  const handleHistoryItemClick = useCallback(
+    (term: string) => {
+      setInputValue(term);
+      executeSearch(term);
+    },
+    [executeSearch]
+  );
+
+  const handleRemoveHistoryItem = useCallback(
+    (e: React.MouseEvent, term: string) => {
+      e.stopPropagation();
+      removeSearchTerm(term);
+    },
+    [removeSearchTerm]
+  );
+
+  // TODO: 상세검색
+  const handleDetailSearch = () => {
+    console.log('상세검색');
   };
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsDropdownVisible(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const hasSearchHistory = searchHistory.length > 0;
+  const showDropdown = isDropdownVisible && hasSearchHistory;
 
   return (
-    <div css={searchBoxContainerStyles}>
-      <div css={titleStyles}>
-        <Typography variant="title2" color="black">
-          도서 검색
-        </Typography>
-      </div>
+    <div css={searchBoxContainerStyles} ref={containerRef}>
+      {/* 제목 */}
+      <Typography variant="title2" color="black" css={titleStyles}>
+        도서 검색
+      </Typography>
 
+      {/* 검색 영역 */}
       <div css={searchGroupStyles}>
-        <div css={searchInputContainerStyles}>
-          <div css={searchIconContainerStyles}>
-            <Icon name="search" size={24} color={theme.colors.text.primary} />
-          </div>
-          <input
-            css={searchInputStyles}
-            type="text"
-            placeholder={placeholder}
-            value={inputValue}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyPress}
-          />
-        </div>
+        <SearchInput
+          ref={inputRef}
+          placeholder={placeholder}
+          value={inputValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyPress}
+          onFocus={handleFocus}
+          onClick={handleFocus}
+          onBlur={handleBlur}
+          showDropdown={showDropdown}
+        />
 
-        <button css={detailSearchButtonStyles} onClick={onDetailSearch}>
+        <button css={detailSearchButtonStyles} onClick={handleDetailSearch}>
           <Typography variant="body2" color="subtitle">
             상세검색
           </Typography>
         </button>
       </div>
+
+      {/* 검색 기록 드롭다운 */}
+      {showDropdown && (
+        <div css={searchHistoryDropdownStyles}>
+          {searchHistory.map((term, index) => (
+            <div
+              key={`${term}-${index}`}
+              css={historyItemStyles}
+              onClick={() => handleHistoryItemClick(term)}
+            >
+              <span css={historyTermStyles}>{term}</span>
+              <button
+                css={removeButtonStyles}
+                onClick={e => handleRemoveHistoryItem(e, term)}
+                onMouseDown={e => e.preventDefault()}
+                aria-label={`${term} 삭제`}
+              >
+                <Icon name="close" size={24} color={theme.colors.black} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
 const searchBoxContainerStyles = css`
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -78,37 +179,9 @@ const titleStyles = css`
 `;
 
 const searchGroupStyles = css`
-  position: relative;
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 16px;
-`;
-
-const searchInputContainerStyles = css`
-  display: flex;
-  align-items: center;
-  width: 480px;
-  height: 50px;
-  background-color: ${theme.colors.lightGray};
-  border-radius: 100px;
-  padding: 10px;
-  gap: 11px;
-`;
-
-const searchInputStyles = css`
-  flex: 1;
-  border: none;
-  background: transparent;
-  outline: none;
-  font-family: ${theme.typography.fontFamily};
-  font-size: 16px;
-  font-weight: 500;
-  color: ${theme.colors.text.primary};
-
-  &::placeholder {
-    color: ${theme.colors.text.subtitle};
-  }
 `;
 
 const detailSearchButtonStyles = css`
@@ -130,9 +203,60 @@ const detailSearchButtonStyles = css`
   }
 `;
 
-const searchIconContainerStyles = css`
-  padding: 3px;
+const searchHistoryDropdownStyles = css`
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 480px;
+  background-color: ${theme.colors.lightGray};
+  border-radius: 0 0 24px 24px;
+  z-index: ${theme.zIndex.dropdown};
+  max-height: 300px;
+  overflow-y: auto;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+`;
+
+const historyItemStyles = css`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  cursor: pointer;
+  transition: background-color ${theme.transitions.fast};
+
+  &:hover {
+    background-color: ${theme.colors.white};
+  }
+`;
+
+const historyTermStyles = css`
+  flex: 1;
+  font-size: 16px;
+  font-weight: 500;
+  color: ${theme.colors.text.subtitle};
+`;
+
+const removeButtonStyles = css`
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: none;
+  border: none;
+  border-radius: 50%;
+  transition: background-color ${theme.transitions.fast};
+  * {
+    cursor: pointer;
+  }
+
+  &:hover {
+    background-color: ${theme.colors.surface};
+  }
 `;
