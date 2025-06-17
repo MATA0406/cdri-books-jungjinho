@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import { css } from '@emotion/react';
 import { SearchBox } from '../components/common';
-import { BookList } from '../components/book/BookList';
+import { BookList, LikedBooksList } from '../components/book';
+import { Layout } from '../components/layout';
 import { theme } from '../styles/theme';
 
 export const BookSearchPage = () => {
@@ -11,7 +12,15 @@ export const BookSearchPage = () => {
     'title' | 'person' | 'publisher' | undefined
   >();
   const [searchValue, setSearchValue] = useState('');
-  const [isSearched, setIsSearched] = useState(false);
+  const [activeNav, setActiveNav] = useState<'search' | 'favorites'>('search');
+
+  const handleNavChange = (nav: 'search' | 'favorites') => {
+    setActiveNav(nav);
+    if (nav === 'favorites') {
+      setSearchValue('');
+      setCurrentQuery('');
+    }
+  };
 
   const handleSearch = (
     query: string,
@@ -21,7 +30,6 @@ export const BookSearchPage = () => {
     setCurrentQuery(searchQuery);
     setCurrentTarget(target);
     setSearchValue(searchQuery);
-    setIsSearched(true);
   };
 
   const handleSearchChange = (value: string) => {
@@ -29,41 +37,48 @@ export const BookSearchPage = () => {
   };
 
   return (
-    <div css={pageContainerStyles}>
-      {/* 검색 섹션 */}
-      <section css={searchSectionStyles}>
-        <SearchBox
-          placeholder="검색어를 입력하세요"
-          value={searchValue}
-          onChange={handleSearchChange}
-          onSearch={handleSearch}
-        />
-      </section>
+    <Layout activeNav={activeNav} onNavChange={handleNavChange}>
+      <div css={pageContainerStyles}>
+        {activeNav === 'search' && (
+          <>
+            {/* 검색 섹션 */}
+            <section css={searchSectionStyles}>
+              <SearchBox
+                placeholder="검색어를 입력하세요"
+                value={searchValue}
+                onChange={handleSearchChange}
+                onSearch={handleSearch}
+              />
+            </section>
 
-      {/* 컨텐츠 섹션 */}
-      {isSearched && (
-        <section css={contentSectionStyles}>
-          <BookList query={currentQuery} target={currentTarget} />
-        </section>
-      )}
-    </div>
+            <section css={contentSectionStyles}>
+              <BookList query={currentQuery} target={currentTarget} />
+            </section>
+          </>
+        )}
+
+        {activeNav === 'favorites' && (
+          <section css={favoritesSection}>
+            <LikedBooksList />
+          </section>
+        )}
+      </div>
+    </Layout>
   );
 };
 
 const pageContainerStyles = css`
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  width: 960px;
+  align-items: center;
+  width: 100%;
 `;
 
 const searchSectionStyles = css`
   position: sticky;
-  width: 100%;
+  width: 960px;
   background-color: ${theme.colors.white};
-  top: -60px;
-  padding-top: 104px;
-  padding-bottom: 16px;
+  top: 36px;
   z-index: 10;
   box-shadow: 0 8px 16px -8px rgba(255, 255, 255, 0.8);
   &::after {
@@ -83,5 +98,9 @@ const searchSectionStyles = css`
 
 const contentSectionStyles = css`
   padding: 24px 0;
-  width: 100%;
+  width: 960px;
+`;
+
+const favoritesSection = css`
+  width: 960px;
 `;

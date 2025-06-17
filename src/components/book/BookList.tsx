@@ -18,7 +18,11 @@ export const BookList: React.FC<BookListProps> = ({ query, target }) => {
     isLoading,
     isError,
     error,
-  } = useInfiniteBookSearch({ query, target });
+  } = useInfiniteBookSearch({
+    query,
+    target,
+    enabled: Boolean(query?.trim()),
+  });
 
   const { toggleLike, isLiked } = useLikedBooks();
   const intersectionRef = useRef<HTMLDivElement>(null);
@@ -50,11 +54,6 @@ export const BookList: React.FC<BookListProps> = ({ query, target }) => {
     };
   }, [handleIntersection]);
 
-  const handleViewDetail = (isbn: string) => {
-    console.log('상세보기:', isbn);
-    // 상세 페이지로 이동하는 로직 구현
-  };
-
   // 로딩 상태
   if (isLoading) {
     return (
@@ -81,21 +80,8 @@ export const BookList: React.FC<BookListProps> = ({ query, target }) => {
     );
   }
 
-  // 데이터가 없는 경우
-  if (
-    !data?.pages ||
-    data.pages.length === 0 ||
-    data.pages[0].documents.length === 0
-  ) {
-    return (
-      <div css={containerStyles}>
-        <NoData message="검색 결과가 없습니다." />
-      </div>
-    );
-  }
-
-  const totalCount = data.pages[0].meta.total_count;
-  const allBooks = data.pages.flatMap(page => page.documents);
+  const totalCount = data?.pages[0].meta.total_count;
+  const allBooks = data?.pages.flatMap(page => page.documents);
 
   return (
     <div css={containerStyles}>
@@ -104,29 +90,32 @@ export const BookList: React.FC<BookListProps> = ({ query, target }) => {
           도서 검색 결과 총&nbsp;
         </Typography>
         <Typography variant="caption" color="colorPrimary">
-          {totalCount.toLocaleString()}
+          {totalCount?.toLocaleString() || 0}
         </Typography>
         <Typography variant="caption" color="primary">
           건
         </Typography>
       </div>
 
+      {!data && (
+        <div css={containerStyles}>
+          <NoData message="검색 결과가 없습니다." />
+        </div>
+      )}
+
       <div>
-        {allBooks.map((book: Book, index: number) => (
+        {allBooks?.map((book: Book, index: number) => (
           <BookListItem
             key={`${book.isbn}-${index}`}
             book={book}
             isLiked={isLiked(book.isbn)}
             onToggleLike={toggleLike}
-            onViewDetail={handleViewDetail}
           />
         ))}
       </div>
 
-      {/* 무한 스크롤 트리거 */}
       <div ref={intersectionRef} css={intersectionTargetStyles} />
 
-      {/* 추가 로딩 표시 */}
       {isFetchingNextPage && (
         <div css={loadingStyles}>
           <Typography variant="body2" color="subtitle">
@@ -151,7 +140,6 @@ const containerStyles = css`
 
 const searchResultsStyles = css`
   margin-bottom: ${theme.spacing.lg};
-  padding: 0 ${theme.spacing.xxl};
   display: flex;
   align-items: center;
 `;

@@ -10,7 +10,6 @@ export const BookListItem: React.FC<BookListItemProps> = ({
   book,
   isLiked,
   onToggleLike,
-  onViewDetail,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -24,7 +23,6 @@ export const BookListItem: React.FC<BookListItemProps> = ({
 
   const handleDetailClick = () => {
     setIsExpanded(!isExpanded);
-    onViewDetail(book.isbn);
   };
 
   return (
@@ -44,7 +42,7 @@ export const BookListItem: React.FC<BookListItemProps> = ({
           )}
           <button
             css={heartButtonStyles(isExpanded)}
-            onClick={() => onToggleLike(book.isbn)}
+            onClick={() => onToggleLike(book)}
             aria-label={isLiked ? '찜하기 해제' : '찜하기'}
           >
             <Icon

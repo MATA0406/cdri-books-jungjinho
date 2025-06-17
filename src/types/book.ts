@@ -35,6 +35,5 @@ export interface BookSearchParams {
 export interface BookListItemProps {
   book: Book;
   isLiked: boolean;
-  onToggleLike: (isbn: string) => void;
-  onViewDetail: (isbn: string) => void;
+  onToggleLike: (book: Book) => void;
 }

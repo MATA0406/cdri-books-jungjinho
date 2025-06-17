@@ -52,8 +52,6 @@ export const Dropdown: React.FC<DropdownProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const selectedOption = options.find(option => option.value === value);
-
   return (
     <div css={containerStyles} ref={containerRef}>
       <button
@@ -62,9 +60,7 @@ export const Dropdown: React.FC<DropdownProps> = ({
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
       >
-        <span css={labelStyles}>
-          {selectedOption ? selectedOption.label : placeholder}
-        </span>
+        <span css={labelStyles}>{value || placeholder}</span>
         <Icon
           name="arrow-down"
           size={20}
@@ -130,13 +126,12 @@ const arrowStyles = (isOpen: boolean) => css`
 
 const dropdownStyles = css`
   position: absolute;
-  top: 100%;
+  top: calc(100% + 6px);
   left: 0;
   width: 100%;
   background-color: ${theme.colors.white};
   box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
   z-index: ${theme.zIndex.dropdown};
-  border-radius: 0 0 4px 4px;
 `;
 
 const optionStyles = css`
