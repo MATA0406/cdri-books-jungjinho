@@ -34,7 +34,7 @@ const noDataContainerStyles = css`
   justify-content: center;
   width: 160px;
   height: 120px;
-  margin: 0 auto;
+  margin: 96px auto;
 `;
 
 const iconContainerStyles = css`

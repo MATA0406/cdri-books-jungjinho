@@ -14,6 +14,7 @@ type TypographyVariant =
 
 type TypographyColor =
   | 'primary'
+  | 'colorPrimary'
   | 'secondary'
   | 'subtitle'
   | 'black'
@@ -24,6 +25,7 @@ type TypographyColor =
 interface TypographyProps {
   variant?: TypographyVariant;
   color?: TypographyColor;
+  colorPrimary?: TypographyColor;
   children: ReactNode;
   className?: string;
   as?: ElementType;
@@ -38,6 +40,7 @@ interface StyledTextProps {
 const getColorValue = (color: TypographyColor): string => {
   const colorMap = {
     primary: theme.colors.text.primary,
+    colorPrimary: theme.colors.primary,
     secondary: theme.colors.text.secondary,
     subtitle: theme.colors.text.subtitle,
     black: theme.colors.black,
